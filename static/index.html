@@ -387,11 +387,12 @@ tr:hover td { background: var(--bg3); }
 
             <div style="margin-top:16px;" class="form-row">
               <div>
-                <label class="form-label">Opzioni Import</label>
-                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--text2);">
-                  <input type="checkbox" id="opt-ai"> Genera descrizioni AI con Claude
-                  <span style="font-size:11px;color:var(--text3)">(~€0.001/prodotto)</span>
-                </label>
+                <label class="form-label">Modalità Import</label>
+                <select id="opt-modalita" class="form-select">
+                  <option value="entrambi">Nuovi + Aggiorna esistenti</option>
+                  <option value="nuovi">Solo nuovi prodotti</option>
+                  <option value="aggiorna">Solo aggiorna esistenti</option>
+                </select>
               </div>
             </div>
 
@@ -622,7 +623,7 @@ async function api(method, path, body=null, formData=null) {
   const token = localStorage.getItem('bm_token') || TOKEN;
   const opts = {
     method,
-    headers: { 'Authorization': `Bearer ${localStorage.getItem('bm_token') || ''}` }
+    headers: { 'Authorization': `Bearer ${token}` }
   };
   if (formData) {
     opts.body = formData;
@@ -922,46 +923,64 @@ async function doImport() {
   if (!selectedFile) return;
   const btn = document.getElementById('btn-import');
   btn.disabled = true;
-  btn.textContent = '⏳ Importazione in corso...';
-
-  const genAI = document.getElementById('opt-ai').checked;
+  btn.textContent = '⏳ Invio file...';
 
   const fd = new FormData();
   fd.append('file', selectedFile);
-  fd.append('genera_ai', genAI ? 'true' : 'false');
+  fd.append('genera_ai', 'false');
+  fd.append('modalita', 'entrambi');
 
   document.getElementById('import-progress').style.display = 'block';
   document.getElementById('import-result').style.display = 'none';
-
-  // Simula progresso
-  let prog = 0;
-  const interval = setInterval(() => {
-    prog = Math.min(prog + Math.random()*8, 90);
-    document.getElementById('progress-fill').style.width = prog + '%';
-  }, 400);
+  document.getElementById('import-status').textContent = 'Invio file al server...';
+  document.getElementById('progress-fill').style.width = '5%';
 
   const r = await api('POST', '/import/excel', null, fd);
 
-  clearInterval(interval);
-  document.getElementById('progress-fill').style.width = '100%';
-  btn.disabled = false;
-  btn.textContent = '⬆️ Avvia Import';
-
-  if (r) {
-    const errHtml = r.errori.length ? `<div style="margin-top:8px;font-size:12px;color:var(--red);">⚠️ ${r.errori.slice(0,5).join('<br>')}</div>` : '';
+  if (!r || !r.ok) {
+    btn.disabled = false;
+    btn.textContent = '⬆️ Avvia Import';
     document.getElementById('import-result').style.display = 'block';
-    document.getElementById('import-result').innerHTML = `
-      <div class="alert alert-success">
-        ✅ <strong>Import completato!</strong><br>
-        Nuovi: <strong>${r.importati}</strong> · Aggiornati: <strong>${r.aggiornati}</strong> · 
-        Righe totali: <strong>${r.totale_righe}</strong> · Errori: <strong>${r.errori.length}</strong>
-        ${errHtml}
-      </div>`;
-    loadDashboard();
-  } else {
-    document.getElementById('import-result').style.display = 'block';
-    document.getElementById('import-result').innerHTML = '<div class="alert alert-error">❌ Errore durante l\'import. Controlla i log.</div>';
+    document.getElementById('import-result').innerHTML = '<div class="alert alert-error">❌ Errore invio file. Riprova.</div>';
+    return;
   }
+
+  // File ricevuto — ora polling sullo stato
+  btn.textContent = '⏳ Import in corso...';
+  document.getElementById('import-status').textContent = 'Import avviato in background...';
+
+  let pollInterval = setInterval(async () => {
+    const status = await api('GET', '/import/status');
+    if (!status) return;
+
+    const pct = status.totale > 0
+      ? Math.round((status.importati + status.aggiornati + status.skippati) / status.totale * 100)
+      : 50;
+    document.getElementById('progress-fill').style.width = Math.min(pct, 99) + '%';
+    document.getElementById('import-status').textContent = status.messaggio || 'Elaborazione...';
+
+    if (status.completato) {
+      clearInterval(pollInterval);
+      document.getElementById('progress-fill').style.width = '100%';
+      btn.disabled = false;
+      btn.textContent = '⬆️ Avvia Import';
+
+      const errHtml = status.errori && status.errori.length
+        ? `<div style="margin-top:8px;font-size:12px;color:var(--red);">⚠️ ${status.errori.slice(0,5).join('<br>')}</div>` : '';
+
+      document.getElementById('import-result').style.display = 'block';
+      document.getElementById('import-result').innerHTML = `
+        <div class="alert alert-success">
+          ✅ <strong>Import completato!</strong><br>
+          Nuovi: <strong>${status.importati}</strong> · 
+          Aggiornati: <strong>${status.aggiornati}</strong> · 
+          Totale righe: <strong>${status.totale}</strong> · 
+          Errori: <strong>${status.errori ? status.errori.length : 0}</strong>
+          ${errHtml}
+        </div>`;
+      loadDashboard();
+    }
+  }, 2000); // polling ogni 2 secondi
 }
 
 // ── AI STATS ─────────────────────────────────────────────────
