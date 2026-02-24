@@ -8,24 +8,24 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --bg:       #0a0c10;
-  --bg2:      #111318;
-  --bg3:      #181b22;
-  --border:   #1e2330;
-  --border2:  #252c3a;
-  --text:     #e2e8f0;
-  --text2:    #8892a4;
-  --text3:    #4a5568;
-  --accent:   #3b82f6;
+  --bg:       #f0f2f5;
+  --bg2:      #ffffff;
+  --bg3:      #f7f8fa;
+  --border:   #e2e6ea;
+  --border2:  #d0d5dd;
+  --text:     #1a202c;
+  --text2:    #4a5568;
+  --text3:    #9aa5b4;
+  --accent:   #2563eb;
   --accent2:  #1d4ed8;
-  --green:    #10b981;
-  --red:      #ef4444;
-  --orange:   #f59e0b;
-  --purple:   #8b5cf6;
+  --green:    #059669;
+  --red:      #dc2626;
+  --orange:   #d97706;
+  --purple:   #7c3aed;
   --mono:     'JetBrains Mono', monospace;
   --sans:     'Inter', sans-serif;
   --radius:   8px;
-  --shadow:   0 4px 24px rgba(0,0,0,0.4);
+  --shadow:   0 2px 12px rgba(0,0,0,0.08);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,23 +33,23 @@ html,body { height: 100%; background: var(--bg); color: var(--text); font-family
 
 /* ── LAYOUT ── */
 #app { display: flex; height: 100vh; overflow: hidden; }
-#sidebar { width: 220px; min-width: 220px; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+#sidebar { width: 220px; min-width: 220px; background: #1e293b; border-right: 1px solid #1e293b; display: flex; flex-direction: column; }
 #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-#topbar { height: 54px; background: var(--bg2); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; gap: 12px; }
+#topbar { height: 54px; background: var(--bg2); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
 #content { flex: 1; overflow-y: auto; padding: 24px; }
 
 /* ── SIDEBAR ── */
-.sidebar-logo { padding: 18px 16px 14px; border-bottom: 1px solid var(--border); }
-.sidebar-logo h1 { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: 0.5px; }
-.sidebar-logo span { font-family: var(--mono); font-size: 10px; color: var(--accent); display: block; margin-top: 2px; }
+.sidebar-logo { padding: 18px 16px 14px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.sidebar-logo h1 { font-size: 15px; font-weight: 700; color: #ffffff; letter-spacing: 0.5px; }
+.sidebar-logo span { font-family: var(--mono); font-size: 10px; color: #60a5fa; display: block; margin-top: 2px; }
 .sidebar-nav { flex: 1; padding: 10px 0; overflow-y: auto; }
-.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; cursor: pointer; color: var(--text2); font-size: 13px; font-weight: 500; border-left: 3px solid transparent; transition: all 0.15s; user-select: none; }
-.nav-item:hover { background: var(--bg3); color: var(--text); }
-.nav-item.active { background: rgba(59,130,246,0.1); color: var(--accent); border-left-color: var(--accent); }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; cursor: pointer; color: #94a3b8; font-size: 13px; font-weight: 500; border-left: 3px solid transparent; transition: all 0.15s; user-select: none; }
+.nav-item:hover { background: rgba(255,255,255,0.05); color: #ffffff; }
+.nav-item.active { background: rgba(96,165,250,0.15); color: #60a5fa; border-left-color: #60a5fa; }
 .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
-.nav-section { padding: 14px 16px 4px; font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
-.sidebar-footer { padding: 12px 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text3); }
-.sidebar-footer strong { color: var(--text2); display: block; }
+.nav-section { padding: 14px 16px 4px; font-size: 10px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 1px; }
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 12px; color: #64748b; }
+.sidebar-footer strong { color: #cbd5e1; display: block; }
 
 /* ── TOPBAR ── */
 .topbar-title { font-size: 15px; font-weight: 600; flex: 1; }
@@ -192,11 +192,11 @@ tr:hover td { background: var(--bg3); }
 <body>
 
 <!-- LOGIN -->
-<div id="login-screen" style="display:flex;align-items:center;justify-content:center;height:100vh;background:var(--bg);">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:36px;width:340px;box-shadow:var(--shadow);">
+<div id="login-screen" style="display:flex;align-items:center;justify-content:center;height:100vh;background:linear-gradient(135deg,#f0f4ff 0%,#e8f0fe 100%);">
+  <div style="background:#ffffff;border:1px solid var(--border);border-radius:12px;padding:36px;width:340px;box-shadow:0 8px 32px rgba(37,99,235,0.1);">
     <div style="text-align:center;margin-bottom:28px;">
-      <div style="font-size:28px;margin-bottom:8px;">📦</div>
-      <h2 style="font-size:18px;font-weight:700;">BindManager Pro</h2>
+      <div style="font-size:36px;margin-bottom:8px;">📦</div>
+      <h2 style="font-size:20px;font-weight:700;color:#1a202c;">BindManager Pro</h2>
       <p style="color:var(--text3);font-size:12px;margin-top:4px;">Pannello di gestione catalogo</p>
     </div>
     <div id="login-error" class="alert alert-error" style="display:none;"></div>
@@ -253,7 +253,7 @@ tr:hover td { background: var(--bg3); }
       <strong id="user-nome">—</strong>
       <span id="user-email" style="font-size:11px;"></span>
       <div style="margin-top:6px;">
-        <span id="user-badge" class="badge badge-blue" style="font-size:10px;"></span>
+        <span id="user-badge" class="badge badge-blue" style="font-size:10px;background:rgba(96,165,250,0.2);color:#60a5fa;"></span>
         &nbsp;
         <a href="#" onclick="doLogout()" style="font-size:11px;color:var(--text3);text-decoration:none;">Esci</a>
       </div>
