@@ -437,6 +437,13 @@ def stat_categorie(db: Session = Depends(get_db), current_user=Depends(get_curre
     return [{"categoria": r.categoria1 or "Non classificato", "totale": r.totale}
             for r in risultati]
 
+# ── PING PUBBLICO (diagnostica senza auth) ──────────────────────
+@app.get("/api/ping")
+def ping(db: Session = Depends(get_db)):
+    totale = db.query(models.Prodotto).count()
+    utenti = db.query(models.User).count()
+    return {"status": "ok", "prodotti_nel_db": totale, "utenti": utenti}
+
 # ── ROOT → FRONTEND ─────────────────────────────────────────────
 @app.get("/", response_class=HTMLResponse)
 def root():
