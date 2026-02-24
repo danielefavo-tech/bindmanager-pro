@@ -622,7 +622,7 @@ async function api(method, path, body=null, formData=null) {
   const token = localStorage.getItem('bm_token') || TOKEN;
   const opts = {
     method,
-    headers: { 'Authorization': `Bearer ${token}` }
+    headers: { 'Authorization': `Bearer ${localStorage.getItem('bm_token') || ''}` }
   };
   if (formData) {
     opts.body = formData;
