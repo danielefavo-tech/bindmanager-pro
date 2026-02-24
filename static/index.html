@@ -618,9 +618,11 @@ let selectedFile = null;
 
 // ── API ──────────────────────────────────────────────────────
 async function api(method, path, body=null, formData=null) {
+  // Rileggo sempre il token fresco da localStorage
+  const token = localStorage.getItem('bm_token') || TOKEN;
   const opts = {
     method,
-    headers: { 'Authorization': `Bearer ${TOKEN}` }
+    headers: { 'Authorization': `Bearer ${token}` }
   };
   if (formData) {
     opts.body = formData;
@@ -628,9 +630,19 @@ async function api(method, path, body=null, formData=null) {
     opts.headers['Content-Type'] = 'application/json';
     opts.body = JSON.stringify(body);
   }
-  const r = await fetch('/api' + path, opts);
-  if (r.status === 401) { doLogout(); return null; }
-  try { return await r.json(); } catch { return null; }
+  try {
+    const r = await fetch('/api' + path, opts);
+    if (r.status === 401) { doLogout(); return null; }
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      console.error('API error', r.status, err);
+      return null;
+    }
+    return await r.json();
+  } catch(e) {
+    console.error('Fetch error:', e);
+    return null;
+  }
 }
 
 // ── AUTH ─────────────────────────────────────────────────────
@@ -776,13 +788,19 @@ async function loadProdotti(page=1) {
   if (esauriti) params.append('solo_esauriti', 'true');
   if (noai) params.append('solo_senza_ai', 'true');
 
+  const tbody = document.getElementById('prodotti-tbody');
+  tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--text3);">⏳ Caricamento...</td></tr>';
+
   const d = await api('GET', `/prodotti?${params}`);
-  if (!d) return;
+
+  if (!d) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="alert alert-error" style="margin:12px;">❌ Errore caricamento — riprova il login</div></td></tr>';
+    return;
+  }
 
   document.getElementById('prodotti-count').textContent = d.totale.toLocaleString('it') + ' prodotti';
 
-  const tbody = document.getElementById('prodotti-tbody');
-  if (!d.prodotti.length) {
+  if (!d.prodotti || !d.prodotti.length) {
     tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="icon">📭</div><p>Nessun prodotto trovato</p></div></td></tr>';
     document.getElementById('pagination').innerHTML = '';
     return;
